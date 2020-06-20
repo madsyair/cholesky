@@ -1,0 +1,65 @@
+# Macro for computing the Cholesky factorization:
+# Written by                     : Achmad Syahrul Choir
+# Versi                               : 1.0
+# Last modified              : 1th December, 2009
+# Input                   MAI  : Matrix A, positive definite
+#                                        p : Constant Number of variable
+#
+# Output MAO : Upper Triangle Matrix /Cholesky Triangle
+# SOURCE : G.H Golub and Charles F. Van Loan
+# Matrix COmputation, Third Edition,1996
+############################################
+
+Cholesky MAI MAO p
+
+MCONSTANT i j k s p n
+MCOLUMN v ColA.1-ColA.p ColTA.1-ColTA.p G.1-G.p w nma ntma
+MMATRIX MAI MAO TMAI MA0 TMAO MAIC
+
+#ERROR MESSAGE
+Diagonal MAI w.
+let n=count(w)
+
+if p~=n
+note *** ERROR *** Number of variables input differs from number of variables in matrix
+exit
+endif
+
+#ERROR MESSAGE
+
+Transpose MAI TMAI
+Copy MAI ColA.1-ColA.p
+Copy TMAI ColTA.1-ColTA.p
+Stack ColA.1-ColA.p nma
+Stack ColTA.1-ColTA.p ntma
+if nma~=ntma
+note *** ERROR *** matrix must be symmetric.
+exit
+endif
+
+Define 0 p p MA0
+copy MA0 G.1-G.p
+
+do j=1:p
+do i=j:p
+let v(i)=COLA.i(j)
+let k=1
+while k<j
+let v(i)=v(i)-G.j(k)*G.i(k)
+let k=k+1
+endwhile
+let G.i(j)=v(i)/(v(j))**0.5
+
+enddo
+enddo
+
+copy G.1-G.p MAO
+transpose MAO TMAO
+multiply TMAO MAO MAIC
+name MAO ‘G=Cholesky Triangular/Upper triangular’
+name MAI ‘ A=Matrix Symmetric Positife Definite’
+name MAIC ‘Multiply GT (G transpose) and G’
+Note Checking……….
+print MAO MAI MAIC
+
+endmacro
